@@ -23,29 +23,130 @@ export function initChart(iframe) { //Botones para gráfico y mapa
     d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_9/main/data/pre_mas65_europa.csv', function(error,data) {
         if (error) throw error;
         //Botones para elegir gráfico o mapa
+        let currentType = 'viz';
+        
+        data.sort(function(x, y){
+            return d3.descending(+x.OBS_VALUE, +y.OBS_VALUE);
+        });
 
-        console.log(data);
+        let margin = {top: 20, right: 30, bottom: 40, left: 100},
+            width = document.getElementById('viz').clientWidth - margin.left - margin.right,
+            height = document.getElementById('viz').clientHeight - margin.top - margin.bottom;
+
+        let svg = d3.select("#viz")
+        .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        let x = d3.scaleLinear()
+            .domain([0, 25])
+            .range([ 0, width]);
+
+        svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x));
+
+        let y = d3.scaleBand()
+                .range([ 0, height ])
+                .domain(data.map(function(d) { return d.NAME; }))
+                .padding(.1);
+
+        svg.append("g")
+            .call(d3.axisLeft(y));
+
+        console.log(y.bandwidth());
+
+        ///// DESARROLLO DEL GRÁFICO
+        function initViz() {
+            svg.selectAll("bars")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr('class','bars')
+                .attr("x", x(0) )
+                .attr("y", function(d) { return y(d.NAME) + 2.25; })
+                .attr("width", function(d) { return x(0); })
+                .attr("height", y.bandwidth() / 1.5 )
+                .attr("fill", function(d) {
+                    if (d.ID == 'EU27_2020' || d.ID == 'ES') {
+                        return '#BF2727';
+                    } else {
+                        return '#F8B05C';
+                    }
+                })
+                .transition()
+                .duration(1500)
+                .attr("width", function(d) { return x(+d.OBS_VALUE); });
+        }
+
+        function animateViz() {
+            svg.selectAll(".bars")
+                .attr("width", function(d) { return x(0); })
+                .transition()
+                .duration(1500)
+                .attr("width", function(d) { return x(+d.OBS_VALUE); });
+        }
+
+        ///// DESARROLLO DEL MAPA
+        function initMap() {
+
+        }
+
+
+        ///// CAMBIO
+        function setChart(type) {
+            if(type != currentType) {
+                if(type == 'viz') {
+                    //Cambiamos color botón
+                    document.getElementById('data_map').classList.remove('active');
+                    document.getElementById('data_viz').classList.add('active');
+                    //Cambiamos gráfico
+                    document.getElementById('map').classList.remove('active');
+                    document.getElementById('viz').classList.add('active');
+                } else {
+                    //Cambiamos color botón
+                    document.getElementById('data_map').classList.add('active');
+                    document.getElementById('data_viz').classList.remove('active');
+                    //Cambiamos gráfico
+                    document.getElementById('viz').classList.remove('active');
+                    document.getElementById('map').classList.add('active');
+                }
+            }            
+        }
 
         /////
         /////
         // Resto - Chart
         /////
         /////
+        initViz();
 
+        document.getElementById('data_viz').addEventListener('click', function() {            
+            //Cambiamos gráfico
+            setChart('viz');
+            //Cambiamos valor actual
+            currentType = 'viz';
+        });
 
+        document.getElementById('data_map').addEventListener('click', function() {            
+            //Cambiamos gráfico
+            setChart('map');
+            //Cambiamos valor actual
+            currentType = 'map';
+        });
 
-        ///// DESARROLLO DEL MAPA
-
+        //Animación del gráfico
+        document.getElementById('replay').addEventListener('click', function() {
+            animateViz();
+        });
 
         /////
         /////
         // Resto
         /////
         /////
-        //Animación del gráfico
-        document.getElementById('replay').addEventListener('click', function() {
-            animateChart();
-        });
 
         //Iframe
         setFixedIframeUrl('informe_perfil_mayores_2022_demografia_1_9','comparativa_europa_personas_mayores');
