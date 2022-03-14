@@ -34,7 +34,9 @@
                 </div>
                 <div class="chart__double">
                     <div class="chart__viz active" id="viz"></div>
-                    <div class="chart__map" id="map"></div>
+                    <div class="chart__map" id="map">
+                        <iframe src="arcgis.html" width="100%" height="460px"></iframe>
+                    </div>
                 </div>                
                 <!-- Pie de gráfico -->
                 <div class="chart__footer">
@@ -103,7 +105,6 @@
     <script type="text/javascript" src="https://pym.nprapps.org/pym.v1.min.js"></script>
     <script>
         const pymChild = new pym.Child();
-        let isChartActive = false;
     </script>
 </body>
 </html>

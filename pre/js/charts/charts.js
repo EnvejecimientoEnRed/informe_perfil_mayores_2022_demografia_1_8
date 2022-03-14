@@ -1,5 +1,6 @@
 //Desarrollo de las visualizaciones
 import * as d3 from 'd3';
+import WebMap from "@arcgis/core/WebMap";
 import { numberWithCommas2 } from '../helpers';
 //import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
 import { setChartHeight } from '../modules/height';
@@ -23,7 +24,7 @@ export function initChart(iframe) { //Botones para gráfico y mapa
     d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_9/main/data/pre_mas65_europa.csv', function(error,data) {
         if (error) throw error;
         //Botones para elegir gráfico o mapa
-        let currentType = 'viz';
+        let currentType = 'viz', firstInit = true;
         
         data.sort(function(x, y){
             return d3.descending(+x.OBS_VALUE, +y.OBS_VALUE);
@@ -55,8 +56,6 @@ export function initChart(iframe) { //Botones para gráfico y mapa
 
         svg.append("g")
             .call(d3.axisLeft(y));
-
-        console.log(y.bandwidth());
 
         ///// DESARROLLO DEL GRÁFICO
         function initViz() {
@@ -91,9 +90,8 @@ export function initChart(iframe) { //Botones para gráfico y mapa
 
         ///// DESARROLLO DEL MAPA
         function initMap() {
-
+            
         }
-
 
         ///// CAMBIO
         function setChart(type) {
@@ -130,11 +128,17 @@ export function initChart(iframe) { //Botones para gráfico y mapa
             currentType = 'viz';
         });
 
-        document.getElementById('data_map').addEventListener('click', function() {            
+        document.getElementById('data_map').addEventListener('click', function() {
             //Cambiamos gráfico
             setChart('map');
             //Cambiamos valor actual
             currentType = 'map';
+
+            //Cargamos el mapa por primera vez
+            if(firstInit) {
+                initMap();
+                firstInit = false;
+            }
         });
 
         //Animación del gráfico
@@ -155,13 +159,15 @@ export function initChart(iframe) { //Botones para gráfico y mapa
         setRRSSLinks('comparativa_europa_personas_mayores');
 
         //Captura de pantalla de la visualización
-        setChartCanvas();
-        setCustomCanvas();
+        //setChartCanvas();
+        setTimeout(() => {
+            setCustomCanvas();
+        }, 6000);        
 
         let pngDownload = document.getElementById('pngImage');
 
         pngDownload.addEventListener('click', function(){
-            setChartCanvasImage('comparativa_europa_personas_mayores');
+            //setChartCanvasImage('comparativa_europa_personas_mayores');
             setChartCustomCanvasImage('comparativa_europa_personas_mayores');
         });
 
