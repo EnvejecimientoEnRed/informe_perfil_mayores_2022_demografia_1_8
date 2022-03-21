@@ -24,7 +24,7 @@ export function initChart(iframe) { //Botones para gráfico y mapa
     d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_9/main/data/pre_mas65_europa.csv', function(error,data) {
         if (error) throw error;
         //Botones para elegir gráfico o mapa
-        let currentType = 'viz', firstInit = true;
+        let currentType = 'viz';
         
         data.sort(function(x, y){
             return d3.descending(+x.OBS_VALUE, +y.OBS_VALUE);
@@ -45,9 +45,20 @@ export function initChart(iframe) { //Botones para gráfico y mapa
             .domain([0, 25])
             .range([ 0, width]);
 
+        let xAxis = function(g) {
+            g.call(d3.axisBottom(x));
+            g.call(function(svg) {
+                svg.selectAll("text")	
+                .style("text-anchor", "end")
+                .attr("dx", "-.8em")
+                .attr("dy", ".15em")
+                .attr("transform", "rotate(-65)");
+            });
+        }
+
         svg.append("g")
             .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x));
+            .call(xAxis);
 
         let y = d3.scaleBand()
                 .range([ 0, height ])
@@ -70,9 +81,9 @@ export function initChart(iframe) { //Botones para gráfico y mapa
                 .attr("height", y.bandwidth() / 1.5 )
                 .attr("fill", function(d) {
                     if (d.ID == 'EU27_2020' || d.ID == 'ES') {
-                        return '#BF2727';
+                        return COLOR_ANAG_2;
                     } else {
-                        return '#F8B05C';
+                        return COLOR_PRIMARY_1;
                     }
                 })
                 .transition()
@@ -89,9 +100,6 @@ export function initChart(iframe) { //Botones para gráfico y mapa
         }
 
         ///// DESARROLLO DEL MAPA
-        function initMap() {
-            
-        }
 
         ///// CAMBIO
         function setChart(type) {
@@ -133,12 +141,6 @@ export function initChart(iframe) { //Botones para gráfico y mapa
             setChart('map');
             //Cambiamos valor actual
             currentType = 'map';
-
-            //Cargamos el mapa por primera vez
-            if(firstInit) {
-                initMap();
-                firstInit = false;
-            }
         });
 
         //Animación del gráfico
