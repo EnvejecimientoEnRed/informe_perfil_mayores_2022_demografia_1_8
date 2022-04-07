@@ -1,6 +1,6 @@
 //Desarrollo de las visualizaciones
 import * as d3 from 'd3';
-import WebMap from "@arcgis/core/WebMap";
+
 import { numberWithCommas2 } from '../helpers';
 //import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
 import { setChartHeight } from '../modules/height';
@@ -20,8 +20,8 @@ COLOR_GREY_2 = '#64605A',
 COLOR_OTHER_1 = '#B58753', 
 COLOR_OTHER_2 = '#731854';
 
-export function initChart(iframe) { //Botones para gráfico y mapa
-    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_9/main/data/pre_mas65_europa.csv', function(error,data) {
+export function initChart(iframe) {
+    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_8/main/data/pre_mas65_europa.csv', function(error,data) {
         if (error) throw error;
         //Botones para elegir gráfico o mapa
         let currentType = 'viz';
@@ -155,7 +155,7 @@ export function initChart(iframe) { //Botones para gráfico y mapa
         /////
 
         //Iframe
-        setFixedIframeUrl('informe_perfil_mayores_2022_demografia_1_9','comparativa_europa_personas_mayores');
+        setFixedIframeUrl('informe_perfil_mayores_2022_demografia_1_8','comparativa_europa_personas_mayores');
 
         //Redes sociales > Antes tenemos que indicar cuál sería el texto a enviar
         setRRSSLinks('comparativa_europa_personas_mayores');
