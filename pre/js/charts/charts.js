@@ -161,16 +161,12 @@ export function initChart(iframe) {
         setRRSSLinks('comparativa_europa_personas_mayores');
 
         //Captura de pantalla de la visualización
-        //setChartCanvas();
-        setTimeout(() => {
-            setCustomCanvas();
-        }, 6000);        
+        setChartCanvas();      
 
         let pngDownload = document.getElementById('pngImage');
 
         pngDownload.addEventListener('click', function(){
-            //setChartCanvasImage('comparativa_europa_personas_mayores');
-            setChartCustomCanvasImage('comparativa_europa_personas_mayores');
+            setChartCanvasImage('comparativa_europa_personas_mayores');
         });
 
         //Altura del frame
