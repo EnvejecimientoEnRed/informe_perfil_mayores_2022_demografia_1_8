@@ -1,24 +1,16 @@
 //Desarrollo de las visualizaciones
 import * as d3 from 'd3';
-
-import { numberWithCommas2 } from '../helpers';
-//import { getInTooltip, getOutTooltip, positionTooltip } from './modules/tooltip';
+import { numberWithCommas3 } from '../helpers';
+import { getInTooltip, getOutTooltip, positionTooltip } from '../modules/tooltip';
 import { setChartHeight } from '../modules/height';
-import { setChartCanvas, setChartCanvasImage, setCustomCanvas, setChartCustomCanvasImage } from '../modules/canvas-image';
+import { setChartCanvas, setChartCanvasImage } from '../modules/canvas-image';
 import { setRRSSLinks } from '../modules/rrss';
 import { setFixedIframeUrl } from './chart_helpers';
 
 //Colores fijos
-const COLOR_PRIMARY_1 = '#F8B05C', 
-COLOR_PRIMARY_2 = '#E37A42',
-COLOR_COMP_1 = '#528FAD', 
-COLOR_COMP_2 = '#AADCE0',
-COLOR_GREY_1 = '#D6D6D6', 
-COLOR_GREY_2 = '#A3A3A3',
-COLOR_ANAG__PRIM_1 = '#BA9D5F', 
-COLOR_ANAG_PRIM_2 = '#9E6C51',
-COLOR_ANAG_PRIM_3 = '#9E3515',
-COLOR_ANAG_COMP_1 = '#1C5A5E';
+const COLOR_PRIMARY_1 = '#F8B05C',
+COLOR_ANAG_PRIM_3 = '#9E3515';
+let tooltip = d3.select('#tooltip');
 
 export function initChart(iframe) {
     d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_8/main/data/pre_mas65_europa.csv', function(error,data) {
@@ -30,11 +22,11 @@ export function initChart(iframe) {
             return d3.descending(+x.OBS_VALUE, +y.OBS_VALUE);
         });
 
-        let margin = {top: 20, right: 30, bottom: 40, left: 100},
-            width = document.getElementById('viz').clientWidth - margin.left - margin.right,
-            height = document.getElementById('viz').clientHeight - margin.top - margin.bottom;
+        let margin = {top: 5, right: 15, bottom: 20, left: 110},
+            width = document.getElementById('chart').clientWidth - margin.left - margin.right,
+            height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;
 
-        let svg = d3.select("#viz")
+        let svg = d3.select("#chart")
         .append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -45,14 +37,17 @@ export function initChart(iframe) {
             .domain([0, 25])
             .range([ 0, width]);
 
-        let xAxis = function(g) {
-            g.call(d3.axisBottom(x));
-            g.call(function(svg) {
-                svg.selectAll("text")	
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", "rotate(-65)");
+        let xAxis = function(svg) {
+            svg.call(d3.axisBottom(x).ticks(5));
+            svg.call(function(g){
+                g.selectAll('.tick line')
+                    .attr('class', function(d,i) {
+                        if (d == 0) {
+                            return 'line-special';
+                        }
+                    })
+                    .attr('y1', '0')
+                    .attr('y2', `-${height}`)
             });
         }
 
@@ -65,8 +60,13 @@ export function initChart(iframe) {
                 .domain(data.map(function(d) { return d.NAME; }))
                 .padding(.1);
 
+        let yAxis = function(svg) {
+            svg.call(d3.axisLeft(y));
+            svg.call(function(g){g.selectAll('.tick line').remove()});
+        }
+
         svg.append("g")
-            .call(d3.axisLeft(y));
+            .call(yAxis);
 
         ///// DESARROLLO DEL GRÁFICO
         function initViz() {
@@ -74,28 +74,62 @@ export function initChart(iframe) {
                 .data(data)
                 .enter()
                 .append("rect")
-                .attr('class','bars')
+                .attr('class','rect')
                 .attr("x", x(0) )
                 .attr("y", function(d) { return y(d.NAME) + 2.25; })
                 .attr("width", function(d) { return x(0); })
                 .attr("height", y.bandwidth() / 1.5 )
                 .attr("fill", function(d) {
                     if (d.ID == 'EU27_2020' || d.ID == 'ES') {
-                        return COLOR_ANAG_2;
+                        return COLOR_ANAG_PRIM_3;
                     } else {
                         return COLOR_PRIMARY_1;
                     }
                 })
+                .on('mouseover', function(d,i,e) {
+                    //Opacidad de las barras
+                    let bars = svg.selectAll('.rect');  
+                    bars.each(function() {
+                        this.style.opacity = '0.4';
+                    });
+                    this.style.opacity = '1';
+
+                    //Texto
+                    let html = '';
+                    if(d.NAME == 'UE-27') {
+                        html = '<p class="chart__tooltip--title">' + d.NAME + '</p>' + 
+                        '<p class="chart__tooltip--text">Un ' + numberWithCommas3(parseFloat(d.OBS_VALUE).toFixed(1)) + '% de habitantes de la Unión Europea tiene 65 años o más.</p>';
+                    } else {
+                        html = '<p class="chart__tooltip--title">' + d.NAME + '</p>' + 
+                        '<p class="chart__tooltip--text">Un ' + numberWithCommas3(parseFloat(d.OBS_VALUE).toFixed(1)) + '% de habitantes de este país tiene 65 años o más.</p>';
+                    }                    
+            
+                    tooltip.html(html);
+
+                    //Tooltip
+                    positionTooltip(window.event, tooltip);
+                    getInTooltip(tooltip);
+                })
+                .on('mouseout', function(d,i,e) {
+                    //Quitamos los estilos de la línea
+                    let bars = svg.selectAll('.rect');
+                    bars.each(function() {
+                        this.style.opacity = '1';
+                    });
+                
+                    //Quitamos el tooltip
+                    getOutTooltip(tooltip);
+                })
                 .transition()
-                .duration(1500)
+                .duration(2000)
                 .attr("width", function(d) { return x(+d.OBS_VALUE); });
         }
 
         function animateViz() {
-            svg.selectAll(".bars")
+            svg.selectAll(".rect")
                 .attr("width", function(d) { return x(0); })
                 .transition()
-                .duration(1500)
+                .duration(2000)
                 .attr("width", function(d) { return x(+d.OBS_VALUE); });
         }
 
