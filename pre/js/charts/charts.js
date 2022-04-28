@@ -22,7 +22,7 @@ export function initChart(iframe) {
             return d3.descending(+x.OBS_VALUE, +y.OBS_VALUE);
         });
 
-        let margin = {top: 5, right: 15, bottom: 20, left: 110},
+        let margin = {top: 12.5, right: 15, bottom: 25, left: 110},
             width = document.getElementById('chart').clientWidth - margin.left - margin.right,
             height = document.getElementById('chart').clientHeight - margin.top - margin.bottom;
 
@@ -98,10 +98,10 @@ export function initChart(iframe) {
                     let html = '';
                     if(d.NAME == 'UE-27') {
                         html = '<p class="chart__tooltip--title">' + d.NAME + '</p>' + 
-                        '<p class="chart__tooltip--text">Un ' + numberWithCommas3(parseFloat(d.OBS_VALUE).toFixed(1)) + '% de habitantes de la Unión Europea tiene 65 años o más.</p>';
+                        '<p class="chart__tooltip--text">Un <b>' + numberWithCommas3(parseFloat(d.OBS_VALUE).toFixed(1)) + '%</b> de habitantes de la Unión Europea tiene 65 años o más.</p>';
                     } else {
                         html = '<p class="chart__tooltip--title">' + d.NAME + '</p>' + 
-                        '<p class="chart__tooltip--text">Un ' + numberWithCommas3(parseFloat(d.OBS_VALUE).toFixed(1)) + '% de habitantes de este país tiene 65 años o más.</p>';
+                        '<p class="chart__tooltip--text">Un <b>' + numberWithCommas3(parseFloat(d.OBS_VALUE).toFixed(1)) + '%</b> de habitantes de este país tiene 65 años o más.</p>';
                     }                    
             
                     tooltip.html(html);
