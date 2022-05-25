@@ -13,7 +13,7 @@ COLOR_ANAG_PRIM_3 = '#9E3515';
 let tooltip = d3.select('#tooltip');
 
 export function initChart(iframe) {
-    d3.csv('https://raw.githubusercontent.com/CarlosMunozDiazCSIC/informe_perfil_mayores_2022_demografia_1_8/main/data/pre_mas65_europa.csv', function(error,data) {
+    d3.csv('https://raw.githubusercontent.com/EnvejecimientoEnRed/informe_perfil_mayores_2022_demografia_1_8/main/data/pre_mas65_europa.csv', function(error,data) {
         if (error) throw error;
         //Botones para elegir gráfico o mapa
         let currentType = 'viz';
